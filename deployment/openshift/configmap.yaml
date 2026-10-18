@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vectorvision-config
+  namespace: vectorvision
+  labels:
+    app: vectorvision
+    environment: production
+    platform: ibm-linuxone
+data:
+  ENV: "production"
+  DEPLOYMENT_PLATFORM: "IBM LinuxONE Enterprise Server / Red Hat OpenShift on s390x"
+  SIMULATION_ENABLED: "true"
+  SIMULATION_TICK_SECONDS: "2.0"
+  AUTO_GENERATE_INCIDENTS: "true"

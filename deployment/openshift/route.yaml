@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: vectorvision-dashboard
+  namespace: vectorvision
+  labels:
+    app: vectorvision
+spec:
+  to:
+    kind: Service
+    name: vectorvision-frontend
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

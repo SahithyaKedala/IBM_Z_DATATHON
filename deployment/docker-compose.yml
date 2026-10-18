@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: vectorvision_db
+    restart: always
+    environment:
+      POSTGRES_USER: vectorvision
+      POSTGRES_PASSWORD: securepassword123
+      POSTGRES_DB: vectorvision_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backend
+    container_name: vectorvision_backend
+    restart: always
+    environment:
+      ENV: production
+      DATABASE_URL: postgresql://vectorvision:securepassword123@db:5432/vectorvision_db
+      DEPLOYMENT_PLATFORM: "IBM LinuxONE / Red Hat OpenShift (s390x)"
+      SIMULATION_ENABLED: "true"
+      SIMULATION_TICK_SECONDS: "2.0"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.frontend
+    container_name: vectorvision_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

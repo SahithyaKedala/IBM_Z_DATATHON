@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vectorvision-backend
+  namespace: vectorvision
+  labels:
+    app: vectorvision
+    tier: backend
+    arch: s390x
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vectorvision
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: vectorvision
+        tier: backend
+        arch: s390x
+    spec:
+      containers:
+        - name: backend
+          image: image-registry.openshift-image-registry.svc:5000/vectorvision/backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: vectorvision-config
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vectorvision-frontend
+  namespace: vectorvision
+  labels:
+    app: vectorvision
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vectorvision
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: vectorvision
+        tier: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: image-registry.openshift-image-registry.svc:5000/vectorvision/frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
